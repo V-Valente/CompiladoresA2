@@ -151,5 +151,178 @@ pip install antlr4-python3-runtime
 ```
 **Passo 3: Instalar as ferramentas do ANTLR**
 * Acesse o link: https://www.antlr.org/download.html.
-* clique em Complete ANTLR 4.13.2 Java binaries jar, e salve direto na pasta grammar.
-* O link para baixar é esse: https://www.antlr.org/download.html#:~:text=Complete%20ANTLR%204.13.2%20Java%20binaries%20jar
+* Clique em Complete ANTLR 4.13.2 Java binaries jar, e salve na pasta grammar.
+* O link para baixar é esse:[ https://www.antlr.org/download.html#:~:text=Complete%20ANTLR%204.13.2%20Java%20binaries%20jar](https://www.antlr.org/download/antlr-4.13.2-complete.jar)
+* Rodar o seguinte comando no CMD da pasta grammar do seu progama
+```bash
+java -jar antlr-4.13.2-complete.jar -Dlanguage=Python3 -visitor -no-listener -o ../src/generated MiniLang.g4
+```
+**Passo 4: Rodar o comando de teste**
+* Para o nosso exemplo usaremos a pasta de teste chamada `ok_fibonacci.min`.
+* Para realizar o teste vá para o CMD da pasta Raiz e rode o comando:
+```bash
+python -m src.main tests/ok_fibonacci.min
+```
+## Testando o ok_fibonacci.min
+
+### 1. AST (Arvore Sintatica Abstrata)
+A AST representa a estrutura hierárquica do código, ignorando detalhes de pontuação (;, {).
+
+<details>
+ 
+ <summary><strong> Clique para expandir a AST gerada</strong></summary>
+
+  ```
+=== AST ASCII ===
+Program
+└── [block] Block
+    └── [stmts] Seq
+        ├── [first] Seq
+        │   ├── [first] Seq
+        │   │   ├── [first] Seq
+        │   │   │   ├── [first] Seq
+        │   │   │   │   ├── [first] Seq
+        │   │   │   │   │   ├── [first] Seq
+        │   │   │   │   │   │   ├── [first] None
+        │   │   │   │   │   │   └── [second] Decl
+        │   │   │   │   │   │       ├── [type] Id(int)
+        │   │   │   │   │   │       ├── [id] Id(max)
+        │   │   │   │   │   │       └── [init] Num(10)
+        │   │   │   │   │   └── [second] Decl
+        │   │   │   │   │       ├── [type] Id(int)
+        │   │   │   │   │       ├── [id] Id(n1)
+        │   │   │   │   │       └── [init] Num(0)
+        │   │   │   │   └── [second] Decl
+        │   │   │   │       ├── [type] Id(int)
+        │   │   │   │       ├── [id] Id(n2)
+        │   │   │   │       └── [init] Num(1)
+        │   │   │   └── [second] Decl
+        │   │   │       ├── [type] Id(int)
+        │   │   │       ├── [id] Id(next)
+        │   │   │       └── [init] None
+        │   │   └── [second] Decl
+        │   │       ├── [type] Id(int)
+        │   │       ├── [id] Id(count)
+        │   │       └── [init] Num(0)
+        │   └── [second] Print
+        │       ├── [arg[0]] Id(n1)
+        │       └── [arg[1]] Id(n2)
+        └── [second] While
+            ├── [cond] Rel
+            │   ├── [op='<'] Id(count)
+            │   └── [right] Id(max)
+            └── [body] Block
+                └── [stmts] Seq
+                    ├── [first] Seq
+                    │   ├── [first] Seq
+                    │   │   ├── [first] Seq
+                    │   │   │   ├── [first] Seq
+                    │   │   │   │   ├── [first] None
+                    │   │   │   │   └── [second] Eval
+                    │   │   │   │       └── [expr] Assign
+                    │   │   │   │           ├── [left] Id(next)
+                    │   │   │   │           └── [right] Ari
+                    │   │   │   │               ├── [op='+'] Id(n1)
+                    │   │   │   │               └── [right] Id(n2)
+                    │   │   │   └── [second] Print
+                    │   │   │       └── [arg[0]] Id(next)
+                    │   │   └── [second] Eval
+                    │   │       └── [expr] Assign
+                    │   │           ├── [left] Id(n1)
+                    │   │           └── [right] Id(n2)
+                    │   └── [second] Eval
+                    │       └── [expr] Assign
+                    │           ├── [left] Id(n2)
+                    │           └── [right] Id(next)
+                    └── [second] Eval
+                        └── [expr] Assign
+                            ├── [left] Id(count)
+                            └── [right] Ari
+                                ├── [op='+'] Id(count)
+                                └── [right] Num(1)
+```
+            
+</details>
+
+           
+### 2. Tabela de Símbolos
+A análise semântica gera uma tabela para rastrear identificadores, tipos e escopos. No exemplo de Fibonacci, todas as variáveis residem no **escopo global (0)** e são do tipo inteiro.
+
+<details>
+
+ <summary><strong> Clique para expandir a Tabela de Simbolos gerada</strong></summary>
+ 
+```
+=== TABELA DE SÍMBOLOS ===
+[escopo 0] count : int
+[escopo 0] max   : int
+[escopo 0] n1    : int
+[escopo 0] n2    : int
+[escopo 0] next  : int
+```
+</details>
+
+### 3. Execução (Intérprete e Código Gerado)
+
+O programa é executado tanto pelo intérprete
+
+**Saída do Intérprete:**
+<details> <summary style="color:#add8e6;font-weight:bold">Clique para ver a Saída do Intérprete do arquivo `ok_fibonacci.min`</summary>
+
+```
+=== EXECUÇÃO (INTÉRPRETE) ===
+0 1
+1
+2
+3
+5
+8
+13
+21
+34
+55
+89
+```
+</details>
+
+**Codigo gerado:**
+<details> <summary style="color:#add8e6;font-weight:bold">Clique para ver o código Python gerado do arquivo `ok_fibonacci.min`</summary>
+
+```python
+=== PYTHON GERADO ===
+def __ml_run(env=None):
+    frames = [env if isinstance(env, dict) else {}]
+    def push(): frames.append({})
+    def pop(): frames.pop()
+    def declare(name, val): frames[-1][name] = val
+    def get(name):
+        for d in reversed(frames):
+            if name in d: return d[name]
+        raise NameError(f'Variável não encontrada: {name}')
+    def setvar(name, val):
+        for d in reversed(frames):
+            if name in d: d[name]=val; return val
+        frames[-1][name]=val; return val
+    push()
+    declare('max', 0)
+    setvar('max', 10)
+    declare('n1', 0)
+    setvar('n1', 0)
+    declare('n2', 0)
+    setvar('n2', 1)
+    declare('next', 0)
+    declare('count', 0)
+    setvar('count', 0)
+    print(get('n1'), get('n2'))
+    while bool((get('count') < get('max'))):
+        push()
+        setvar('next', (get('n1') + get('n2')))  # eval
+        print(get('next'))
+        setvar('n1', get('n2'))  # eval
+        setvar('n2', get('next'))  # eval
+        setvar('count', (get('count') + 1))  # eval
+        pop()
+    pop()
+    return frames[0]
+```
+</details>
